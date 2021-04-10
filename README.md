@@ -3,6 +3,7 @@
 #### 前置条件
 
 - node.version >= 11.0.0
+- 需要将[ssh-agent](https://docs.github.com/en/github/authenticating-to-github/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent)存放在`~/.ssh`目录中
 
 #### 内部`运行时`说明
 
