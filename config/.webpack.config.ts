@@ -87,8 +87,7 @@ config
         cachedModules: false,
         assetsSort: '!size'
     })
-    // .devtool('eval-source-map')
-    .devtool('inline-source-map') // sourceMap映射性 /// doc: https://webpack.js.org/configuration/devtool/#devtool
+    .devtool(isDevelopment ? 'eval-source-map' : false) // sourceMap映射性 /// doc: https://webpack.js.org/configuration/devtool/#devtool
     .entry('main') // 入口
     .add(path.resolve(workDir, 'src', 'main.ts'))
     .end()
@@ -521,7 +520,9 @@ if (isDevelopment) Dotenv.config(<DotenvConfigOptions>{ path: path.join(workDir,
 config // 插件项
     .plugin('webpack-bar')
     .use(WebpackBar, [{
-        color: '#0091ff'
+        name: projectName,
+        color: '#0091ff',
+        profile: isProduction,
     }])
     .end()
     .plugin('eslint')
@@ -602,7 +603,9 @@ config // 插件项
     }])
     .end()
     .plugin('moment-locales-plugin') // moment-locale: https://github.com/iamakulov/moment-locales-webpack-plugin#usage
-    .use(MomentLocalesPlugin)
+    .use(MomentLocalesPlugin, [{
+        localesToKeep: ['es-us', 'zh-cn']
+    }])
     .end()
     .plugin('define-plugin')
     .use(DefinePlugin, [{
@@ -659,17 +662,17 @@ config.optimization // 构建与打包优化项  /// doc: https://webpack.js.org
         minChunks: 1,
         maxAsyncRequests: 5,
         maxInitialRequests: 3,
-        automaticNameDelimiter: '~',
+        automaticNameDelimiter: '-',
         name(module: {identifier: Function}, chunks: Array<{name: string}>, cacheGroupKey: string) {
             const moduleFileName: string = module.identifier().split('/').reduceRight((item: string) => item);
-            const allChunksNames: string = chunks.map((item) => item.name).join('~');
+            const allChunksNames: string = chunks.map((item) => item.name).join('-');
             return `${cacheGroupKey}-${allChunksNames}-${moduleFileName}`;
         },
         cacheGroups: {
             default: false,
             defaultVendors: {
                 test: /[\\/]node_modules[\\/]/,
-                name: 'vendors',
+                name: 'module',
                 priority: 10
             }
             /* 'meri-design': {
